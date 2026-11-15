@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12071d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Для тебе ❤️</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E💌%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --bg1:#3a1c4a;--bg2:#12071d;--paper:#fff6ec;--ink:#5a2b35;
+  --w:min(84vw,340px,52vh);--h:calc(var(--w)*.66);
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0;background:var(--bg2);overflow:hidden;font-family:Caveat,'Segoe UI',system-ui,sans-serif;color:#fff;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;overscroll-behavior:none}
+.scr{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;transition:opacity 1s}
+#s1{background:radial-gradient(ellipse at 50% 0%,var(--bg1),var(--bg2) 72%);z-index:2}
+#s1.hide{opacity:0;pointer-events:none}
+#s2{background:radial-gradient(ellipse at 50% 50%,#2a1040,#07030d 75%);opacity:0;pointer-events:none;z-index:1}
+#s2.show{opacity:1;pointer-events:auto}
+canvas{position:absolute;top:0;left:0;width:100%;height:100%;touch-action:none;cursor:grab;-webkit-user-select:none;user-select:none}
+canvas:active{cursor:grabbing}
+
+.scene{position:relative;width:var(--w);height:var(--h);transition:transform 1.1s cubic-bezier(.4,0,.2,1);font-size:calc(var(--w)/19)}
+.scene.shift{transform:translateY(calc(var(--h)*.5))}
+.scene>div{position:absolute}
+.back{top:0;left:0;right:0;bottom:0;background:#8f2f45;border-radius:6px;z-index:0;box-shadow:0 20px 50px rgba(0,0,0,.55)}
+.pocket{top:0;left:0;right:0;bottom:0;z-index:3;pointer-events:none}
+.pocket i{position:absolute;top:0;left:0;right:0;bottom:0;border-radius:6px}
+.pl{background:#c64a63;-webkit-clip-path:polygon(0 0,50% 52%,0 100%);clip-path:polygon(0 0,50% 52%,0 100%)}
+.pr{background:#bf4660;-webkit-clip-path:polygon(100% 0,50% 52%,100% 100%);clip-path:polygon(100% 0,50% 52%,100% 100%)}
+.pb{background:#d85b74;-webkit-clip-path:polygon(0 100%,50% 52%,100% 100%);clip-path:polygon(0 100%,50% 52%,100% 100%)}
+.flap{left:0;top:0;width:100%;height:56%;background:#d65b74;-webkit-clip-path:polygon(0 0,100% 0,50% 100%);clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;z-index:4;transition:transform .8s ease,background .5s .2s,z-index 0s .4s}
+.scene.open .flap{transform:rotateX(180deg);z-index:1;background:#a63a52}
+.seal{position:absolute;left:50%;top:56%;width:calc(var(--w)*.2);height:calc(var(--w)*.2);margin:calc(var(--w)*-.1) 0 0 calc(var(--w)*-.1);border:0;padding:0;border-radius:50%;z-index:5;cursor:pointer;
+  background:radial-gradient(circle at 35% 30%,#ff6d7f,#b3122e 60%,#7d0b20);box-shadow:0 4px 12px rgba(0,0,0,.5),inset 0 0 0 3px rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;animation:beat 1.6s ease-in-out infinite;transition:opacity .4s}
+.seal svg{width:55%;fill:#ffd3da;filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
+.scene.open .seal{opacity:0;pointer-events:none;animation:none}
+@keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.letter{left:8%;width:84%;bottom:5%;height:88%;background:var(--paper);border-radius:6px;z-index:2;box-sizing:border-box;padding:1em 1em .9em;color:var(--ink);
+  display:flex;flex-direction:column;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,.35);transition:transform 1.1s cubic-bezier(.4,0,.2,1),height 1.1s cubic-bezier(.4,0,.2,1)}
+.letter.out1{transform:translateY(calc(var(--h)*-.45))}
+.letter.out2{z-index:10;height:calc(var(--h)*1.65);transform:translateY(calc(var(--h)*-.55))}
+.in{opacity:0;transition:opacity .9s .6s;display:flex;flex-direction:column;height:100%}
+.letter.out2 .in{opacity:1}
+.letter p{margin:0 0 .55em;font-size:1.12em;line-height:1.25}
+.letter p:first-child{font-weight:700;color:#b3122e}
+.letter button{margin:auto auto 0;padding:.4em 1.2em;font:inherit;font-size:1.3em;font-weight:700;color:#fff;border:0;border-radius:99px;cursor:pointer;background:linear-gradient(135deg,#d6455f,#8f3bd6);box-shadow:0 4px 14px rgba(143,59,214,.5)}
+.hint{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 28px);text-align:center;font-size:22px;opacity:.75;transition:opacity .8s;pointer-events:none}
+#back{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);left:14px;z-index:3;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;font:inherit;font-size:20px;padding:.2em .8em;border-radius:99px;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+/* картка з побажанням */
+.card{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 44px);width:min(88vw,380px);box-sizing:border-box;padding:16px 38px 18px;border-radius:22px;text-align:center;z-index:4;
+  background:rgba(48,18,70,.78);border:1px solid rgba(255,170,205,.45);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 10px 40px rgba(0,0,0,.5);
+  opacity:0;transform:translate(-50%,24px);pointer-events:none;transition:opacity .35s,transform .35s}
+.card.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.card h2{margin:0 0 4px;font-size:34px;line-height:1.1;color:#ffb3d0}
+.card p{margin:0;font-size:24px;line-height:1.25;color:#fff3f8}
+.card button{position:absolute;top:8px;right:10px;width:32px;height:32px;border:0;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:18px;cursor:pointer}
+</style>
+</head>
+<body>
+
+<section class="scr" id="s1">
+  <div class="scene" id="scene">
+    <div class="back"></div>
+    <div class="letter" id="letter">
+      <div class="in">
+        <p>60 днів із тобою — це найкраще, що трапилося зі мною за цей час.</p>
+        <p>Ти вмієш підняти настрій одним повідомленням і надихаєш більше, ніж будь-хто інший. Просто хочу, щоб ти знала: ти для мене дуже важлива.</p>
+        <p>Натискай нижче — там ціла галактика слів для тебе ❤️</p>
+        <button id="go">Відкрити галактику ✦</button>
+      </div>
+    </div>
+    <div class="pocket"><i class="pl"></i><i class="pr"></i><i class="pb"></i></div>
+    <div class="flap"></div>
+    <button class="seal" id="seal" aria-label="Відкрити конверт">
+      <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+    </button>
+  </div>
+  <div class="hint" id="hint1">Торкнись печатки ♥</div>
+</section>
+
+<section class="scr" id="s2">
+  <canvas id="gal"></canvas>
+  <button id="back">← до листівки</button>
+  <div class="card" id="card"><button id="cx" aria-label="Закрити">✕</button><h2 id="ct"></h2><p id="cm"></p></div>
+  <div class="hint" id="hint2">Крути · наближай щипком · торкнись слова або білої зорі ♥</div>
+</section>
+
+<script>
+const $=s=>document.querySelector(s);
+/* ===== СЛОВА ГАЛАКТИКИ ===== */
+const BASE=["любов","ніжність","ти","мій світ","назавжди","разом","усмішка","тепло","затишок","щастя","мрія","зірка","обіймаю","сонечко","серце","ласка","вірю в нас","поруч","мій дім","мить","казка","я з тобою","сміх","радість","добро","натхнення","спогади","завжди поруч","світло","мелодія","дотик","погляд","довіра","підтримка","вдячність","чарівність","магія","рідна","безмежно","шепіт","спокій","вогник","весна","мрії збуваються","горджуся тобою","з тобою легко","ти сяєш","моя зірочка","ти робиш світ кращим","теплі долоні","вечірня кава","довгі розмови","наші пригоди","дощ і плед","ранкове сонце","квіти для тебе","повний місяць","загадай бажання","усе вийде","обійми","щирість","романтика","мій вибір","тільки ти","моє серце","щасливі миті","бережи себе","посміхайся","зоряна ніч","безкрає небо","ти — мій Всесвіт","60 днів разом","60 днів щастя","60 днів поруч","кожен із 60 днів","день за днем","ти для мене важлива"];
+const WORDS=[...BASE];
+["радість","світло","диво","мрія","щастя","натхнення","тепло","казка","моя зірка","мій спокій","мій дім","мій космос","моя сила","мій настрій","моя усмішка","мій найкращий день","мій оберіг","моя турбота"].forEach(x=>WORDS.push("ти — "+x));
+["усмішку","підтримку","тепло","розмови","вечори","ніжність","сміх","турботу","довіру","добрі слова","кожен день","натхнення","терпіння","твій настрій"].forEach(x=>WORDS.push("дякую за "+x));
+["твій сміх","твої очі","твій голос","твої повідомлення","наші вечори","твою усмішку","твоє тепло","твою доброту","наші розмови","твої обійми","твій погляд","як ти мене розумієш"].forEach(x=>WORDS.push("люблю "+x));
+["добра","мила","щира","світла","сильна","ніжна","красива","чарівна","розумна","унікальна","тепла","весела","неповторна","дорога мені","особлива"].forEach(x=>WORDS.push("ти така "+x));
+for(let i=1;i<=60;i++)WORDS.push("день "+i);
+const COUNT=560;
+
+/* ===== ПОБАЖАННЯ, ЯКІ ВІДКРИВАЮТЬСЯ ПО ТОРКАННЮ СЛОВА — заміни/додай свої ===== */
+const MSG=["Ти робиш мої дні світлішими.","З тобою навіть звичайний вівторок — свято.","Дякую, що ти є саме такою, яка ти є.","Твоя усмішка — найкраще, що я бачу за день.","Мені так добре, коли ти поруч.","Ти вмієш світити навіть у найтемніший день.","Кожна наша розмова — маленьке диво.","Ти надихаєш мене більше, ніж здогадуєшся.","Тепло, яке ти даруєш, не передати словами.","Ти справжня, і це неймовірно цінно.","З тобою світ стає добрішим.","Ти — мій улюблений привід усміхатися.","Я ціную кожну мить із тобою.","Твій голос — як тепла музика.","Ти заслуговуєш на найкраще — і я хочу бути частиною цього.","Ти значиш для мене більше, ніж можна сказати словами.","Навіть на відстані я відчуваю твоє тепло.","Ти з усім справляєшся — і я пишаюся тобою.","Ти як тихий вечір після важкого дня — рятуєш.","З тобою мені хочеться бути кращою версією себе.","Дякую за кожне повідомлення, яке змушує усміхнутися.","Ти — мій спокій серед метушні.","Мені подобається все, що пов’язано з тобою.","Ти — найкращий збіг у моєму житті.","Поруч із тобою я відчуваю дім.","Не забувай: ти неймовірна.","Я думаю про тебе частіше, ніж зізнаюся.","Ці 60 днів — лише початок.","Ти — моя улюблена історія.","Просто знай: ти дуже важлива для мене ❤️"];
+function msgFor(w){
+  const d=/^день (\d+)$/.exec(w);if(d)return `День ${d[1]} із тобою — ще один подарунок долі ❤️`;
+  let h=0;for(let i=0;i<w.length;i++)h=(h*31+w.charCodeAt(i))>>>0;return MSG[h%MSG.length];
+}
+
+/* ===== КОНВЕРТ ===== */
+const scene=$('#scene'),letter=$('#letter');
+$('#seal').onclick=()=>{
+  if(scene.classList.contains('open'))return;
+  scene.classList.add('open');$('#hint1').style.opacity=0;
+  setTimeout(()=>letter.classList.add('out1'),700);
+  setTimeout(()=>{letter.classList.add('out2');scene.classList.add('shift')},1800);
+};
+$('#go').onclick=()=>{$('#s1').classList.add('hide');$('#s2').classList.add('show');start();setTimeout(()=>$('#hint2').style.opacity=0,6000)};
+$('#back').onclick=()=>{closeCard();$('#s2').classList.remove('show');$('#s1').classList.remove('hide');stop();$('#hint2').style.opacity=.75};
+
+/* ===== 3D ГАЛАКТИКА ===== */
+const cv=$('#gal'),c=cv.getContext('2d');
+let W,H,F,run=false,raf;
+function size(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;c.setTransform(d,0,0,d,0,0);F=Math.min(W,H)*1.25}
+addEventListener('resize',size);size();
+
+const R=380,FS=38;
+// переважно білі та рожеві відтінки
+const PAL=[[255,255,255],[255,208,226],[255,150,195],[255,100,165],[220,195,255],[255,226,175]],PALW=[40,25,20,9,4,2];
+function pickCol(){let r=Math.random()*100;for(let i=0;i<PALW.length;i++){r-=PALW[i];if(r<0)return i}return 0}
+const cache=new Map();
+function sprite(w,ci){
+  const key=w+'|'+ci;let s=cache.get(key);if(s)return s;
+  const f=`500 ${FS}px system-ui,-apple-system,sans-serif`;
+  s=document.createElement('canvas');const x=s.getContext('2d');x.font=f;
+  s.width=Math.ceil(x.measureText(w).width)+8;s.height=Math.ceil(FS*1.35);
+  x.font=f;x.textAlign='center';x.textBaseline='middle';x.fillStyle=`rgb(${PAL[ci]})`;x.fillText(w,s.width/2,s.height/2);
+  cache.set(key,s);return s;
+}
+const g=()=>(Math.random()+Math.random()+Math.random()+Math.random()-2)*1.7; // ~нормальний розподіл, σ≈1
+// хаотична хмара: диск + згустки + розсіяне гало, без спіральних рукавів
+const cl=[];for(let i=0;i<7;i++){const a=Math.random()*6.283,r=R*(.25+Math.random()*.55);cl.push([r*Math.cos(a),(Math.random()-.5)*90,r*Math.sin(a)])}
+const sh=[...WORDS].sort(()=>Math.random()-.5),items=[];
+for(let i=0;i<COUNT;i++){
+  const u=Math.random();let x,y,z;
+  if(u<.5){const a=Math.random()*6.283,r=R*Math.pow(Math.random(),.75);x=r*Math.cos(a)+g()*25;z=r*Math.sin(a)*.8+g()*25;y=g()*45}
+  else if(u<.82){const q=cl[(Math.random()*cl.length)|0];x=q[0]+g()*75;y=q[1]+g()*45;z=q[2]+g()*75}
+  else{x=g()*R*.5;y=g()*R*.28;z=g()*R*.5}
+  const w=sh[i%sh.length];
+  items.push({x,y,z,w,s:13+Math.random()*8+(Math.random()<.1?6:0),spr:sprite(w,pickCol())});
+}
+const N=items.length,PX=new Float32Array(N),PY=new Float32Array(N),PS=new Float32Array(N),PZ=new Float32Array(N),idx=Array.from({length:N},(_,i)=>i);
+const SB=[[],[],[],[]],SA=[.25,.45,.65,.85];
+for(let i=0;i<700;i++){const u=Math.random()*6.283,v=Math.acos(2*Math.random()-1),r=450+Math.random()*750;SB[i%4].push(r*Math.sin(v)*Math.cos(u),r*Math.cos(v),r*Math.sin(v)*Math.sin(u))}
+const glow=document.createElement('canvas');glow.width=glow.height=256;
+{const x=glow.getContext('2d'),gr=x.createRadialGradient(128,128,0,128,128,128);gr.addColorStop(0,'rgba(255,170,215,.5)');gr.addColorStop(.4,'rgba(230,130,200,.16)');gr.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=gr;x.fillRect(0,0,256,256)}
+
+let m=[1,0,0,0,1,0,0,0,1],vy=.0016,vp=0,D=820,tD=820,drag=false,pp=0,pq=0,fc=0,sel=-1,cen=false,cenK=0;
+function rot(ax,ay){
+  const cx=Math.cos(ax),sx=Math.sin(ax),cy=Math.cos(ay),sy=Math.sin(ay);
+  const Q=[cy,sy*sx,sy*cx,0,cx,-sx,-sy,cy*sx,cy*cx],n=[];
+  for(let i=0;i<3;i++)for(let j=0;j<3;j++)n[i*3+j]=Q[i*3]*m[j]+Q[i*3+1]*m[3+j]+Q[i*3+2]*m[6+j];
+  m=n;
+}
+function ortho(){
+  let [a,b,d,e,f,g2]=m,l=Math.hypot(a,b,d);a/=l;b/=l;d/=l;
+  const k=a*e+b*f+d*g2;e-=k*a;f-=k*b;g2-=k*d;l=Math.hypot(e,f,g2);e/=l;f/=l;g2/=l;
+  m=[a,b,d,e,f,g2,b*g2-d*f,d*e-a*g2,a*f-b*e];
+}
+function mk(st){const k=document.createElement('canvas');k.width=k.height=256;const x=k.getContext('2d'),g=x.createRadialGradie
