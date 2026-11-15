@@ -93,8 +93,10 @@ canvas:active{cursor:grabbing}
   <div class="hint" id="hint2">Крути · наближай щипком · торкнись слова або білої зорі ♥</div>
 </section>
 
-<script>
-const $=s=>document.querySelector(s);
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
 /* ===== СЛОВА ГАЛАКТИКИ ===== */
 const BASE=["любов","ніжність","ти","мій світ","назавжди","разом","усмішка","тепло","затишок","щастя","мрія","зірка","обіймаю","сонечко","серце","ласка","вірю в нас","поруч","мій дім","мить","казка","я з тобою","сміх","радість","добро","натхнення","спогади","завжди поруч","світло","мелодія","дотик","погляд","довіра","підтримка","вдячність","чарівність","магія","рідна","безмежно","шепіт","спокій","вогник","весна","мрії збуваються","горджуся тобою","з тобою легко","ти сяєш","моя зірочка","ти робиш світ кращим","теплі долоні","вечірня кава","довгі розмови","наші пригоди","дощ і плед","ранкове сонце","квіти для тебе","повний місяць","загадай бажання","усе вийде","обійми","щирість","романтика","мій вибір","тільки ти","моє серце","щасливі миті","бережи себе","посміхайся","зоряна ніч","безкрає небо","ти — мій Всесвіт","60 днів разом","60 днів щастя","60 днів поруч","кожен із 60 днів","день за днем","ти для мене важлива"];
 const WORDS=[...BASE];
@@ -111,7 +113,7 @@ function msgFor(w){
   const d=/^день (\d+)$/.exec(w);if(d)return `День ${d[1]} із тобою — ще один подарунок долі ❤️`;
   let h=0;for(let i=0;i<w.length;i++)h=(h*31+w.charCodeAt(i))>>>0;return MSG[h%MSG.length];
 }
-
+    const $=s=>document.querySelector(s);
 /* ===== КОНВЕРТ ===== */
 const scene=$('#scene'),letter=$('#letter');
 $('#seal').onclick=()=>{
@@ -172,4 +174,91 @@ function ortho(){
   const k=a*e+b*f+d*g2;e-=k*a;f-=k*b;g2-=k*d;l=Math.hypot(e,f,g2);e/=l;f/=l;g2/=l;
   m=[a,b,d,e,f,g2,b*g2-d*f,d*e-a*g2,a*f-b*e];
 }
-function mk(st){const k=document.createElement('canvas');k.width=k.height=256;const x=k.getContext('2d'),g=x.createRadialGradie
+function mk(st){const k=document.createElement('canvas');k.width=k.height=256;const x=k.getContext('2d'),g=x.createRadialGradient(128,128,0,128,128,128);st.forEach(s=>g.addColorStop(s[0],s[1]));x.fillStyle=g;x.fillRect(0,0,256,256);return k}
+const soft=mk([[0,'rgba(255,255,255,1)'],[.25,'rgba(255,255,255,.92)'],[.55,'rgba(255,225,240,.42)'],[1,'rgba(255,200,230,0)']]);
+const pink=mk([[0,'rgba(255,120,190,.75)'],[.35,'rgba(255,100,175,.35)'],[.7,'rgba(240,90,170,.1)'],[1,'rgba(240,90,170,0)']]);
+rot(.45,0);
+
+/* картка */
+const card=$('#card');
+function openCard(i){sel=i;cen=false;const w=items[i].w;$('#ct').textContent=w.charAt(0).toUpperCase()+w.slice(1);$('#cm').textContent=msgFor(w);card.classList.add('on');$('#hint2').style.opacity=0}
+function closeCard(){sel=-1;cen=false;card.classList.remove('on')}
+/* ГОЛОВНА БІЛА ЗОРЯ В ЦЕНТРІ — її повідомлення */
+const CENTER_MSG='Ти вже зі мною місяць, і я щиро радий, що ти в мене є. Будь зі мною все життя ❤️❤️';
+function openCenter(){sel=-1;cen=true;$('#ct').textContent='Для тебе ❤️';$('#cm').textContent=CENTER_MSG;card.classList.add('on');$('#hint2').style.opacity=0}
+function hitC(x,y){if(D<40)return false;const r=Math.max(11,22*F/D)*2.4;return Math.hypot(x-W/2,y-H/2)<Math.max(30,r)}
+$('#cx').onclick=closeCard;
+function hit(x,y){
+  for(let n=N-1;n>=0;n--){
+    const i=idx[n],s=PS[i];if(!s)continue;
+    const it=items[i],k=it.s*s/FS,w=it.spr.width*k,h=it.spr.height*k;if(h<4||h>600)continue;
+    if(Math.abs(x-PX[i])<w/2+8&&Math.abs(y-PY[i])<h/2+10)return i;
+  }
+  return -1;
+}
+
+/* жести */
+const ptr=new Map();let pd=0,cand=null;
+const pdist=()=>{const a=[...ptr.values()];return Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1])||1};
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);cand=ptr.size?null:{x:e.clientX,y:e.clientY,t:Date.now(),id:e.pointerId};ptr.set(e.pointerId,[e.clientX,e.clientY]);drag=true;vp=0;vy=0;if(ptr.size==2)pd=pdist()});
+cv.addEventListener('pointermove',e=>{
+  const p=ptr.get(e.pointerId);if(!p)return;
+  if(cand&&Math.hypot(e.clientX-cand.x,e.clientY-cand.y)>10)cand=null;
+  const dx=e.clientX-p[0],dy=e.clientY-p[1];p[0]=e.clientX;p[1]=e.clientY;
+  if(ptr.size==1){pp+=dy*.006;pq-=dx*.006}
+  else if(ptr.size==2){const d=pdist();if(pd)tD=Math.min(1800,Math.max(60,tD*pd/d));pd=d}
+});
+const up=e=>{
+  if(cand&&e.type=='pointerup'&&cand.id==e.pointerId&&Date.now()-cand.t<500){if(hitC(cand.x,cand.y))openCenter();else{const i=hit(cand.x,cand.y);if(i>=0)openCard(i);else closeCard()}}
+  cand=null;ptr.delete(e.pointerId);if(!ptr.size)drag=false;pd=0;
+};
+cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+cv.addEventListener('wheel',e=>{e.preventDefault();tD=Math.min(1800,Math.max(60,tD*Math.exp(e.deltaY*.0012)))},{passive:false});
+
+function frame(t){
+  if(!run)return;
+  t=t||0;
+  let ax=pp*.3,ay=pq*.3;pp-=ax;pq-=ay;
+  if(drag){vp=ax;vy=ay}else{ax+=vp;ay+=vy;vp*=.96;vy+=((sel>=0||cen?0:.0016)-vy)*.03}
+  rot(ax,ay);if(++fc%90==0)ortho();
+  D+=(tD-D)*.15;
+  const m0=m[0],m1=m[1],m2=m[2],m3=m[3],m4=m[4],m5=m[5],m6=m[6],m7=m[7],m8=m[8],hw=W/2,hh=H/2;
+  c.clearRect(0,0,W,H);
+  {const r=210*F/D;c.globalAlpha=.9;c.drawImage(glow,hw-r,hh-r,2*r,2*r)}
+  for(let b=0;b<4;b++){
+    c.fillStyle=`rgba(255,255,255,${SA[b]})`;const a=SB[b];
+    for(let i=0;i<a.length;i+=3){
+      const x=a[i],y=a[i+1],z=a[i+2],zc=m6*x+m7*y+m8*z+D;if(zc<25)continue;
+      const s=F/zc;c.fillRect(hw+(m0*x+m1*y+m2*z)*s,hh+(m3*x+m4*y+m5*z)*s,1.4,1.4);
+    }
+  }
+  for(let i=0;i<N;i++){
+    const it=items[i],x=it.x,y=it.y,z=it.z,zc=m6*x+m7*y+m8*z+D;PZ[i]=zc;
+    if(zc<25){PS[i]=0;continue}
+    const s=F/zc;PS[i]=s;PX[i]=hw+(m0*x+m1*y+m2*z)*s;PY[i]=hh+(m3*x+m4*y+m5*z)*s;
+  }
+  idx.sort((a,b)=>PZ[b]-PZ[a]);
+  for(let n=0;n<N;n++){
+    const i=idx[n],s=PS[i];if(!s||i===sel)continue;
+    const it=items[i],k=it.s*s/FS,sp=it.spr,w=sp.width*k,h=sp.height*k;
+    if(h<4||h>600)continue;
+    const px=PX[i],py=PY[i];if(px<-w||px>W+w||py<-h||py>H+h)continue;
+    c.globalAlpha=Math.max(.22,Math.min(1,.3+(s-.45)*1.2));
+    c.drawImage(sp,px-w/2,py-h/2,w,h);
+  }
+  if(sel>=0&&PS[sel]){ // вибране слово — яскраве, пульсує
+    const it=items[sel],k=it.s*PS[sel]/FS*(1.35+.06*Math.sin(t/180)),sp=it.spr,w=sp.width*k,h=sp.height*k,px=PX[sel],py=PY[sel];
+    c.globalAlpha=.9;c.drawImage(glow,px-w,py-w*.8,2*w,1.6*w);
+    c.globalAlpha=1;c.drawImage(sp,px-w/2,py-h/2,w,h);
+  }
+  if(D>40){ // велика біла зоря в центрі
+    cenK+=((cen?1:0)-cenK)*.06;
+    const b=Math.max(11,22*F/D)*(1+.07*Math.sin(t/1100)+.2*cenK),p=Math.sin(t/1100);
+    c.globalAlpha=.6+.12*p;c.drawImage(pink,hw-b*7,hh-b*7,b*14,b*14); // рожеве розмите ядро
+    c.globalAlpha=1;c.drawImage(soft,hw-b*2.5,hh-b*2.5,b*5,b*5); // м'яка біла зоря
+  }
+  c.globalAlpha=1;
+  raf=requestAnimationFrame(frame);
+}
+function start(){if(run)return;run=true;size();frame()}
+function stop(){run=false;cancelAnimationFrame(raf)}
